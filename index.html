@@ -84,11 +84,7 @@ max_block_generate_distance = 5
 
           const select_proxy = document.getElementById('select_proxy');
           const proxies = [
-              [ "wss://na1.dustlabs.io/mtproxy", "North America" ],
-              [ "wss://sa1.dustlabs.io/mtproxy", "South America" ],
-              [ "wss://eu1.dustlabs.io/mtproxy", "Europe" ],
-              [ "wss://ap1.dustlabs.io/mtproxy", "Asia" ],
-              [ "wss://ap2.dustlabs.io/mtproxy", "Australia" ],
+              [ "ws://127.0.0.1:8080/proxy" ]
           ];
           proxies.forEach((entry, index) => {
               const opt = document.createElement('option');

@@ -573,7 +573,7 @@ class MinetestLauncher {
         this.vpn = null;
         this.serverCode = null;
         this.clientCode = null;
-        this.proxyUrl = "wss://minetest.dustlabs.io/proxy";
+        this.proxyUrl = "ws://127.0.0.1:8080/proxy";
         this.packsDir = DEFAULT_PACKS_DIR;
         this.packsDirIsCors = false;
         this.minetestConf = null;
