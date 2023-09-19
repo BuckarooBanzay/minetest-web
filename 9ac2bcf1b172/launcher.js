@@ -225,7 +225,8 @@ function loadWasm() {
 }
 
 function callMain() {
-    const fullargs = [ './minetest', ...mtLauncher.args.toArray() ];
+    const fullargs = [ './minetest', '--address', '10.0.0.22', '--port', '30000', '--name', 'user', '--go'];
+    //const fullargs = [ './minetest', ...mtLauncher.args.toArray() ];
     const [argc, argv] = makeArgv(fullargs);
     emloop_invoke_main(argc, argv);
     // Pausing and unpausing here gives the browser time to redraw the DOM
