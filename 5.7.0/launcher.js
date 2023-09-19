@@ -1,7 +1,7 @@
 'use strict';
 
 // These are relative paths
-const RELEASE_DIR = '9ac2bcf1b172'; // set by build_www.sh
+const RELEASE_DIR = '5.7.0'; // set by build_www.sh
 const DEFAULT_PACKS_DIR = RELEASE_DIR + '/packs';
 
 const rtCSS = `
@@ -225,8 +225,8 @@ function loadWasm() {
 }
 
 function callMain() {
-    const fullargs = [ './minetest', '--address', '10.0.0.22', '--port', '30000', '--name', 'user', '--go'];
-    //const fullargs = [ './minetest', ...mtLauncher.args.toArray() ];
+    //sconst fullargs = [ './minetest', '--address', '10.0.0.22', '--port', '30000', '--name', 'user', '--go'];
+    const fullargs = [ './minetest', ...mtLauncher.args.toArray() ];
     const [argc, argv] = makeArgv(fullargs);
     emloop_invoke_main(argc, argv);
     // Pausing and unpausing here gives the browser time to redraw the DOM
