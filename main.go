@@ -26,16 +26,26 @@ func main() {
 		}
 
 		// https://github.com/paradust7/webshims/blob/main/src/emsocket/proxy.js
-		go func() {
-			t, data, err := conn.ReadMessage()
-			if err != nil {
-				fmt.Printf("Err: %v\n", err)
-				conn.Close()
-				return
-			}
+		t, data, err := conn.ReadMessage()
+		if err != nil {
+			fmt.Printf("Err: %v\n", err)
+			conn.Close()
+			return
+		}
 
-			fmt.Printf("RX: type=%d, data=%s\n", t, data)
-		}()
+		fmt.Printf("RX: type=%d, data=%s\n", t, data)
+		conn.WriteMessage(websocket.BinaryMessage, []byte("PROXY OK"))
+
+		t, data, err = conn.ReadMessage()
+		if err != nil {
+			fmt.Printf("Err: %v\n", err)
+			conn.Close()
+			return
+		}
+
+		fmt.Printf("RX: type=%d, data=%s\n", t, data)
+
+		conn.Close()
 	})
 
 	err := http.ListenAndServe(":8080", nil)
