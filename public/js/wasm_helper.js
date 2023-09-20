@@ -67,7 +67,7 @@ export function execute(args) {
 
     emloop_init_sound();
     emsocket_init();
-    emsocket_set_proxy(allocateUTF8("ws://127.0.0.1:8080/proxy"));
+    emsocket_set_proxy(allocateUTF8(location.href.replace("http", "ws") + "proxy"));
 
     const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     const height = window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight;
