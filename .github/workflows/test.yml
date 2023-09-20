@@ -1,0 +1,31 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+
+    - name: Install npm modules
+      run: |
+        cd public && npm ci && npm run jshint && npm run bundle
+
+    - name: Install Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.21.x
+
+    - name: Test
+      run: |
+        go test ./... -coverprofile=profile.cov
+
+    - uses: shogo82148/actions-goveralls@v1.8.0
+      with:
+        path-to-profile: profile.cov

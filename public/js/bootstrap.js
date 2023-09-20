@@ -1,3 +1,5 @@
+/* globals _malloc, cwrap, HEAPU32, HEAPU8, allocateUTF8 */
+
 function makeArgv(args) {
     // Assuming 4-byte pointers
     const argv = _malloc((args.length + 1) * 4);
@@ -35,7 +37,7 @@ function addPack(name) {
     });
 }
 
-function emloop_ready() {
+window.emloop_ready = function() {
     emloop_pause = cwrap("emloop_pause", null, []);
     emloop_unpause = cwrap("emloop_unpause", null, []);
     emloop_init_sound = cwrap("emloop_init_sound", null, []);
@@ -63,8 +65,8 @@ function emloop_ready() {
         irrlicht_force_pointerlock();
         emloop_request_animation_frame();    
     });
-}
+};
 
-var Module = {
+window.Module = {
     canvas: canvas_el
 };
