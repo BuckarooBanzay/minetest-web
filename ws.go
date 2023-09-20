@@ -139,6 +139,7 @@ func forwardData(conn *websocket.Conn, host string, port int64) error {
 	errchan := make(chan error, 1)
 	run := atomic.Bool{}
 	run.Store(true)
+	Clients.Inc()
 
 	conn.WriteMessage(websocket.TextMessage, []byte("PROXY OK"))
 
@@ -155,6 +156,8 @@ func forwardData(conn *websocket.Conn, host string, port int64) error {
 				errchan <- err
 				return
 			}
+			UDPtoWSBytes.Add(float64(len))
+			UDPtoWSPackets.Add(1)
 		}
 	}()
 
@@ -183,11 +186,14 @@ func forwardData(conn *websocket.Conn, host string, port int64) error {
 				errchan <- err
 				return
 			}
+			WStoUDPBytes.Add(float64(len(data)))
+			WStoUDPPackets.Add(1)
 		}
 	}()
 
 	err = <-errchan
 	run.Store(false)
 	conn.Close()
+	Clients.Dec()
 	return err
 }

@@ -6,6 +6,8 @@ import (
 	"minetest-web/public"
 	"net/http"
 	"os"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -28,6 +30,9 @@ func main() {
 
 	// websocket proxy
 	http.HandleFunc("/proxy", HandleProxy)
+
+	// metrics
+	http.Handle("/metrics", promhttp.Handler())
 
 	// app info endpoint
 	http.HandleFunc("/info", func(w http.ResponseWriter, r *http.Request) {
