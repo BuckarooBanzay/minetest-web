@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -61,6 +62,34 @@ func handleConnection(conn *websocket.Conn) error {
 	if host == "10.0.0.1" && port == 53 && protocol == "TCP" {
 		err = resolveDNS(conn)
 	} else if protocol == "UDP" {
+		allowed_host := os.Getenv("ALLOWED_HOST")
+		if allowed_host != "" && host != allowed_host {
+			// try to resolve first
+			ips, err := net.LookupIP(allowed_host)
+			if err != nil {
+				return err
+			}
+			if len(ips) == 0 {
+				return fmt.Errorf("could not resolve allowed host: '%s'", allowed_host)
+			}
+			found := false
+			for _, ip := range ips {
+				if ip.String() == host {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				return fmt.Errorf("host not allowed: '%s'", host)
+			}
+		}
+
+		allowed_port := os.Getenv("ALLOWED_PORT")
+		if allowed_port != "" && parts[4] != allowed_port {
+			return fmt.Errorf("port not allowed: '%s'", parts[4])
+		}
+
 		err = forwardData(conn, host, port)
 	} else {
 		return fmt.Errorf("unsupported command: '%s'", data)
@@ -121,7 +150,6 @@ func forwardData(conn *websocket.Conn, host string, port int64) error {
 				errchan <- err
 				return
 			}
-			fmt.Printf("UDP->WS len=%d\n", len)
 			err = conn.WriteMessage(websocket.BinaryMessage, buf[:len])
 			if err != nil {
 				errchan <- err
@@ -150,7 +178,6 @@ func forwardData(conn *websocket.Conn, host string, port int64) error {
 				}
 			}
 
-			fmt.Printf("WS->UDP len=%d\n", len(data))
 			_, err = udpconn.Write(data)
 			if err != nil {
 				errchan <- err
