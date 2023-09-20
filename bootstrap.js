@@ -9,11 +9,30 @@ function makeArgv(args) {
     return [i, argv];
 }
 
-let emloop_pause, emloop_unpause, emloop_init_sound, emloop_invoke_main;
 
-function animate() {
+let emloop_pause, emloop_unpause, emloop_init_sound, emloop_invoke_main, emloop_install_pack;
+let irrlicht_resize, irrlicht_force_pointerlock;
+let emsocket_init, emsocket_set_proxy;
+
+const canvas_el = document.getElementById("canvas");
+
+function emloop_request_animation_frame() {
     emloop_pause();
     window.requestAnimationFrame(() => { emloop_unpause(); });
+}
+
+
+function addPack(name) {
+    return fetch(`5.7.0/packs/${name}.pack`)
+    .then(r => r.blob())
+    .then(blob => blob.arrayBuffer())
+    .then(ab => new Uint8Array(ab))
+    .then(u8arr => {
+        const len = u8arr.byteLength;
+        const offset = _malloc(len);
+        HEAPU8.set(u8arr, offset);
+        emloop_install_pack(allocateUTF8(name), offset, len);
+    });
 }
 
 function emloop_ready() {
@@ -21,13 +40,30 @@ function emloop_ready() {
     emloop_unpause = cwrap("emloop_unpause", null, []);
     emloop_init_sound = cwrap("emloop_init_sound", null, []);
     emloop_invoke_main = cwrap("emloop_invoke_main", null, ["number", "number"]);
+    emloop_install_pack = cwrap("emloop_install_pack", null, ["number", "number", "number"]);
+    irrlicht_resize = cwrap("irrlicht_resize", null, ["number", "number"]);
+    irrlicht_force_pointerlock = cwrap("irrlicht_force_pointerlock", null);
+    emsocket_init = cwrap("emsocket_init", null, []);
+    emsocket_set_proxy = cwrap("emsocket_set_proxy", null, ["number"]);
 
-    const [argc, argv] = makeArgv(["./minetest"]);
-    emloop_invoke_main(argc, argv);
+    addPack("base")
+    .then(() => {
+        const [argc, argv] = makeArgv(["./minetest"]);
+        emloop_invoke_main(argc, argv);
 
-    animate();
+        emloop_init_sound();
+        emsocket_init();
+        emsocket_set_proxy(allocateUTF8("ws://127.0.0.1:8080/proxy"));
+
+        const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        const height = window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight;
+
+        irrlicht_resize(width, height);
+        irrlicht_force_pointerlock();
+        emloop_request_animation_frame();    
+    });
 }
 
 var Module = {
-    canvas: document.getElementById("canvas")
+    canvas: canvas_el
 };
