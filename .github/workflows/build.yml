@@ -64,6 +64,6 @@ jobs:
       - name: Build and push latest docker image
         if: success() && github.ref == 'refs/heads/main'
         run: |
-          go build -ldflags="-s -w -extldflags=-static"
+          CGO_ENABLED=0 go build -ldflags="-s -w -extldflags=-static"
           docker build . -t ghcr.io/buckaroobanzay/minetest-web:latest
           docker push ghcr.io/buckaroobanzay/minetest-web:latest
