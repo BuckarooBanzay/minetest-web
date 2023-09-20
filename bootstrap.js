@@ -48,8 +48,8 @@ function emloop_ready() {
 
     addPack("base")
     .then(() => {
-        const [argc, argv] = makeArgv(["./minetest", "--go", "--name", "Yoyodyne", "--password", "enter", "--address", "nodecore.mine.nu"]);
-        //const [argc, argv] = makeArgv(["./minetest"]);
+        //const [argc, argv] = makeArgv(["./minetest", "--go", "--name", "Yoyodyne", "--password", "enter", "--address", "nodecore.mine.nu"]);
+        const [argc, argv] = makeArgv(["./minetest"]);
         emloop_invoke_main(argc, argv);
 
         emloop_init_sound();
