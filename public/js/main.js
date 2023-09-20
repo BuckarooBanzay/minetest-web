@@ -1,10 +1,9 @@
 /* globals Vue */
 
-import { ready } from "./wasm_helper.js";
+import { init } from "./wasm_helper.js";
 import App from "./components/App.js";
 
-ready
-.then(() => {
+init().then(() => {
     const app = Vue.createApp(App);
     app.provide("unmount", () => app.unmount());
 	app.mount("#app");

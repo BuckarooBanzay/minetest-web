@@ -53,6 +53,14 @@ export const ready = new Promise((resolve, reject) => {
     };
 });
 
+export function init(){
+    const script_el = document.createElement("script");
+    script_el.src = "wasm/minetest.js";
+    document.body.appendChild(script_el);
+
+    return ready;
+}
+
 export function execute(args) {
     const [argc, argv] = makeArgv(["./minetest", ...args]);
     emloop_invoke_main(argc, argv);
@@ -72,7 +80,3 @@ export function execute(args) {
 window.Module = {
     canvas: canvas_el
 };
-
-const script_el = document.createElement("script");
-script_el.src = "wasm/minetest.js";
-document.body.appendChild(script_el);
