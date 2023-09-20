@@ -23,7 +23,7 @@ function emloop_request_animation_frame() {
 
 
 function addPack(name) {
-    return fetch(`5.7.0/packs/${name}.pack`)
+    return fetch(`wasm/packs/${name}.pack`)
     .then(r => r.blob())
     .then(blob => blob.arrayBuffer())
     .then(ab => new Uint8Array(ab))
@@ -48,7 +48,8 @@ function emloop_ready() {
 
     addPack("base")
     .then(() => {
-        const [argc, argv] = makeArgv(["./minetest"]);
+        const [argc, argv] = makeArgv(["./minetest", "--go", "--name", "Yoyodyne", "--password", "enter", "--address", "nodecore.mine.nu"]);
+        //const [argc, argv] = makeArgv(["./minetest"]);
         emloop_invoke_main(argc, argv);
 
         emloop_init_sound();
