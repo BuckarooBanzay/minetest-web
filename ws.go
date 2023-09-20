@@ -14,7 +14,11 @@ import (
 
 var MinetestMagic = []byte{0x4f, 0x45, 0x74, 0x03}
 
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 func HandleProxy(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
