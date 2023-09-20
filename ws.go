@@ -6,9 +6,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/gorilla/websocket"
 )
+
+var MinetestMagic = []byte{0x4f, 0x45, 0x74, 0x03}
 
 var upgrader = websocket.Upgrader{}
 
@@ -20,14 +23,14 @@ func HandleProxy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func() {
-		err = HandleConnection(conn)
+		err = handleConnection(conn)
 		if err != nil {
 			fmt.Printf("WS Error: %s\n", err)
 		}
 	}()
 }
 
-func HandleConnection(conn *websocket.Conn) error {
+func handleConnection(conn *websocket.Conn) error {
 	_, data, err := conn.ReadMessage()
 	if err != nil {
 		return err
@@ -52,11 +55,48 @@ func HandleConnection(conn *websocket.Conn) error {
 		return fmt.Errorf("invalid port: %d", port)
 	}
 
-	if protocol != "UDP" {
-		return fmt.Errorf("TCP not supported")
+	fmt.Printf("Connecting to '%s:%d'\n", host, port)
+
+	// only allow dns requests and minetest-protocol forwarding
+	if host == "10.0.0.1" && port == 53 && protocol == "TCP" {
+		err = resolveDNS(conn)
+	} else if protocol == "UDP" {
+		err = forwardData(conn, host, port)
+	} else {
+		return fmt.Errorf("unsupported command: '%s'", data)
+	}
+	return err
+}
+
+func resolveDNS(conn *websocket.Conn) error {
+	conn.WriteMessage(websocket.TextMessage, []byte("PROXY OK"))
+
+	_, data, err := conn.ReadMessage()
+	if err != nil {
+		return err
 	}
 
-	fmt.Printf("Connecting to '%s:%d'\n", host, port)
+	fmt.Printf("Resolving host: '%s'\n", string(data))
+
+	ips, err := net.LookupIP(string(data))
+	if err != nil {
+		return err
+	}
+
+	if len(ips) == 0 {
+		return fmt.Errorf("host not found")
+	}
+
+	err = conn.WriteMessage(websocket.BinaryMessage, []byte(ips[0]))
+	if err != nil {
+		return err
+	}
+
+	return conn.Close()
+}
+
+func forwardData(conn *websocket.Conn, host string, port int64) error {
+	fmt.Printf("Forwarding data to %s:%d\n", host, port)
 
 	uaddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", host, port))
 	if err != nil {
@@ -67,14 +107,15 @@ func HandleConnection(conn *websocket.Conn) error {
 	if err != nil {
 		return err
 	}
-
 	errchan := make(chan error, 1)
+	run := atomic.Bool{}
+	run.Store(true)
 
 	conn.WriteMessage(websocket.TextMessage, []byte("PROXY OK"))
 
 	go func() {
 		buf := make([]byte, 3000)
-		for {
+		for run.Load() {
 			len, err := udpconn.Read(buf)
 			if err != nil {
 				errchan <- err
@@ -90,13 +131,25 @@ func HandleConnection(conn *websocket.Conn) error {
 	}()
 
 	go func() {
-		for {
-			_, data, err = conn.ReadMessage()
+		for run.Load() {
+			_, data, err := conn.ReadMessage()
 			if err != nil {
 				errchan <- err
 				return
 			}
-			//TODO: check magic
+			if len(data) < 9 {
+				errchan <- fmt.Errorf("invalid packet size: %d", len(data))
+				return
+			}
+
+			// ensure that we are using the minetest protocol
+			for i, b := range MinetestMagic {
+				if data[i] != b {
+					errchan <- fmt.Errorf("invalid magic at offset %d: %d", i, data[i])
+					return
+				}
+			}
+
 			fmt.Printf("WS->UDP len=%d\n", len(data))
 			_, err = udpconn.Write(data)
 			if err != nil {
@@ -106,5 +159,8 @@ func HandleConnection(conn *websocket.Conn) error {
 		}
 	}()
 
-	return <-errchan
+	err = <-errchan
+	run.Store(false)
+	conn.Close()
+	return err
 }

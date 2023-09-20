@@ -1,7 +1,7 @@
 'use strict';
 
 // These are relative paths
-const RELEASE_DIR = '5.7.0'; // set by build_www.sh
+const RELEASE_DIR = 'wasm'; // set by build_www.sh
 const DEFAULT_PACKS_DIR = RELEASE_DIR + '/packs';
 
 const rtCSS = `
