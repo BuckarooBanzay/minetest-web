@@ -18,7 +18,7 @@ export default {
         const min = 37, max = 42;
         if (this.list.length == 0) {
             this.busy = true;
-            fetch("http://servers.minetest.net/list")
+            fetch("https://servers.minetest.net/list")
             .then(r => r.json())
             .then(l => l.list)
             .then(l => l.filter(e => e.proto_max > min && e.proto_min < max))
