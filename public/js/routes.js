@@ -1,8 +1,8 @@
 import Login from "./components/Login.js";
-import Serverlist from "./components/Serverlist.js";
+import ServerlistPage from "./components/ServerlistPage.js";
 
 export default [{
     path: "/", component: Login
 },{
-    path: "/serverlist", component: Serverlist
+    path: "/serverlist", component: ServerlistPage
 }];

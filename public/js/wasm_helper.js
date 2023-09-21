@@ -62,6 +62,8 @@ export function init(){
 }
 
 export function execute(args) {
+    canvas_el.style.display = "block";
+
     const [argc, argv] = makeArgv(["./minetest", ...args]);
     emloop_invoke_main(argc, argv);
 

@@ -1,25 +1,19 @@
-/* globals Vue */
-
-const store = Vue.reactive({
-    list: []
-});
+import { store } from "../service/login.js";
 
 export default {
-    data: () => store,
-    created: function() {
-        const min = 37, max = 42;
-        if (this.list.length == 0) {
-            fetch("http://servers.minetest.net/list")
-            .then(r => r.json())
-            .then(l => l.list)
-            .then(l => l.filter(e => e.proto_max > min && e.proto_min < max))
-            .then(l => this.list = l);
+    props: ["list", "enable_star"],
+    methods: {
+        select_server: function(server) {
+            store.address = server.address;
+            store.port = ""+server.port;
+            this.$router.push("/");
         }
     },
     template: /*html*/`
     <table class="table table-dark table-sm table-striped">
         <thead>
             <tr>
+                <th>Action</th>
                 <th>Address</th>
                 <th>Players</th>
                 <th>Version</th>
@@ -33,11 +27,26 @@ export default {
         </thead>
         <tbody>
             <tr v-for="server in list">
-                <td style="max-width: 15ch;">{{server.address}}</td>
-                <td>{{server.clients}}/{{server.clients_max}}</td>
-                <td style="max-width: 16ch;">{{server.version}}</td>
-                <td>{{server.gameid}}</td>
-                <td style="max-width: 20ch;">{{server.name}}</td>
+                <td>
+                    <i class="fa-regular fa-star" v-if="enable_star"></i>
+                    &nbsp;
+                    <i class="fa-solid fa-play" style="color: green;" v-on:click="select_server(server)"></i>
+                </td>
+                <td style="max-width: 15ch;">
+                    {{server.address}}
+                </td>
+                <td>
+                    {{server.clients}}/{{server.clients_max}}
+                </td>
+                <td style="max-width: 8ch;">
+                    {{server.version}}
+                </td>
+                <td style="max-width: 8ch;">
+                    {{server.gameid}}
+                </td>
+                <td style="max-width: 20ch;">
+                    {{server.name}}
+                </td>
                 <td style="max-width: 64ch; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" class="col-2">
                     <span>{{server.description}}</span>
                 </td>

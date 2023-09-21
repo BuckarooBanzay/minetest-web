@@ -1,15 +1,9 @@
 import { execute } from "../wasm_helper.js";
+import { store } from "../service/login.js";
 
 export default {
     inject: ["unmount", "info"],
-    data: function() {
-        return {
-            address: this.info.AllowedHost,
-            port: this.info.AllowedPort,
-            name: "",
-            password: ""
-        };
-    },
+    data: () => store,
     computed: {
         can_launch: function() {
             if (!this.info.FixedRemote) {
