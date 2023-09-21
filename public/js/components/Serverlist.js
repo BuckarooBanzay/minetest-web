@@ -1,13 +1,15 @@
-import { store } from "../service/login.js";
+import { add_server, is_favorite, remove_server } from "../service/favorites.js";
+import SelectServer from "./SelectServer.js";
 
 export default {
-    props: ["list", "enable_star"],
+    components: {
+        "select-server": SelectServer
+    },
+    props: ["list"],
     methods: {
-        select_server: function(server) {
-            store.address = server.address;
-            store.port = ""+server.port;
-            this.$router.push("/");
-        }
+        add_server: add_server,
+        remove_server: remove_server,
+        is_favorite: is_favorite
     },
     template: /*html*/`
     <table class="table table-dark table-sm table-striped">
@@ -26,11 +28,12 @@ export default {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="server in list">
+            <tr v-for="server in list" v-bind:class="{'table-success': is_favorite(server)}">
                 <td>
-                    <i class="fa-regular fa-star" v-if="enable_star"></i>
+                    <i class="fa fa-star" style="color: yellow;" v-on:click="remove_server(server)" v-if="is_favorite(server)"></i>
+                    <i class="fa-regular fa-star" v-on:click="add_server(server)" v-else></i>
                     &nbsp;
-                    <i class="fa-solid fa-play" style="color: green;" v-on:click="select_server(server)"></i>
+                    <select-server :server="server"/>
                 </td>
                 <td style="max-width: 15ch;">
                     {{server.address}}

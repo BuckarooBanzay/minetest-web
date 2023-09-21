@@ -51,8 +51,15 @@ export default {
                     <a href="https://github.com/paradust7/minetest-wasm" target="_new">paradust's</a>
                     work on the wasm port of minetest
                 </div>
+                <div>
+                    <i class="fa fa-server"></i>
+                    Browse servers on the
+                    <router-link to="/serverlist">
+                        Serverlist
+                    </router-link>
+                </div>
             </form>
-            <div class="alert alert-warning">
+            <div class="alert alert-warning" v-if="!info.AllowedHost">
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <b>NOTE:</b> This is still an experiment, some (or all) features might not work properly!
             </div>
