@@ -17,7 +17,7 @@ export default {
         }
     },
     template: /*html*/`
-    <table class="table table-condensed table-striped">
+    <table class="table table-dark table-sm table-striped">
         <thead>
             <tr>
                 <th>Address</th>
@@ -33,15 +33,17 @@ export default {
         </thead>
         <tbody>
             <tr v-for="server in list">
-                <td>{{server.address}}</td>
+                <td style="max-width: 15ch;">{{server.address}}</td>
                 <td>{{server.clients}}/{{server.clients_max}}</td>
-                <td>{{server.version}}</td>
+                <td style="max-width: 16ch;">{{server.version}}</td>
                 <td>{{server.gameid}}</td>
-                <td>{{server.name}}</td>
-                <td>{{server.description}}</td>
-                <td>{{server.uptime}}</td>
-                <td>{{server.ping}}</td>
-                <td>{{server.lag}}</td>
+                <td style="max-width: 20ch;">{{server.name}}</td>
+                <td style="max-width: 64ch; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" class="col-2">
+                    <span>{{server.description}}</span>
+                </td>
+                <td>{{Math.floor(server.uptime / 3600)}} h</td>
+                <td>{{Math.floor(server.ping * 1000)}} ms</td>
+                <td>{{Math.floor(server.lag * 1000)}} ms</td>
             </tr>
         </tbody>
     </table>
