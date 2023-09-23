@@ -61,6 +61,14 @@ export function init(){
     return ready;
 }
 
+export function resize() {
+    const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    const height = window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight;
+
+    irrlicht_resize(width, height);
+    irrlicht_force_pointerlock();
+}
+
 export function execute(args) {
     canvas_el.style.display = "block";
 
@@ -71,11 +79,8 @@ export function execute(args) {
     emsocket_init();
     emsocket_set_proxy(allocateUTF8(location.protocol.replace("http", "ws") + "//" + location.host + location.pathname + "proxy"));
 
-    const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    const height = window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight;
-
-    irrlicht_resize(width, height);
-    irrlicht_force_pointerlock();
+    resize();
+    window.addEventListener('resize', resize);
     window.emloop_request_animation_frame();
 }
 
