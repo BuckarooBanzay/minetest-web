@@ -51,7 +51,7 @@ export default {
                     <a href="https://github.com/paradust7/minetest-wasm" target="_new">paradust's</a>
                     work on the wasm port of minetest
                 </div>
-                <div>
+                <div v-if="!info.AllowedHost">
                     <i class="fa fa-server"></i>
                     Browse servers on the
                     <router-link to="/serverlist">
