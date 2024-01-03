@@ -1,7 +1,7 @@
 'use strict';
 
 // These are relative paths
-const RELEASE_DIR = 'wasm'; // set by build_www.sh
+const RELEASE_DIR = 'c0860dfb371e'; // set by build_www.sh
 const DEFAULT_PACKS_DIR = RELEASE_DIR + '/packs';
 
 const rtCSS = `
@@ -225,7 +225,6 @@ function loadWasm() {
 }
 
 function callMain() {
-    //sconst fullargs = [ './minetest', '--address', '10.0.0.22', '--port', '30000', '--name', 'user', '--go'];
     const fullargs = [ './minetest', ...mtLauncher.args.toArray() ];
     const [argc, argv] = makeArgv(fullargs);
     emloop_invoke_main(argc, argv);
@@ -277,7 +276,7 @@ function makeArgv(args) {
     const argv = _malloc((args.length + 1) * 4);
     let i;
     for (i = 0; i < args.length; i++) {
-        HEAPU32[(argv >>> 2) + i] = allocateUTF8(args[i]);
+        HEAPU32[(argv >>> 2) + i] = stringToNewUTF8(args[i]);
     }
     HEAPU32[(argv >>> 2) + i] = 0; // argv[argc] == NULL
     return [i, argv];
@@ -346,10 +345,10 @@ Module['printErr'] = Module['print'];
 // This probably should be the default behavior, but doesn't seem to be for WasmFS.
 const workerInject = `
   Module['print'] = (text) => {
-    postMessage({cmd: 'print', text: text, threadId: Module['_pthread_self']()});
+    postMessage({cmd: 'callHandler', handler: 'print', args: [text], threadId: Module['_pthread_self']()});
   };
   Module['printErr'] = (text) => {
-    postMessage({cmd: 'printErr', text: text, threadId: Module['_pthread_self']()});
+    postMessage({cmd: 'callHandler', handler: 'printErr', args: [text], threadId: Module['_pthread_self']()});
   };
   importScripts('minetest.js');
 `;
@@ -574,7 +573,7 @@ class MinetestLauncher {
         this.vpn = null;
         this.serverCode = null;
         this.clientCode = null;
-        this.proxyUrl = "ws://127.0.0.1:8080/proxy";
+        this.proxyUrl = "wss://minetest.dustlabs.io/proxy";
         this.packsDir = DEFAULT_PACKS_DIR;
         this.packsDirIsCors = false;
         this.minetestConf = null;
@@ -663,7 +662,7 @@ class MinetestLauncher {
                 HEAPU8.set(arr, data + offset);
                 offset += arr.byteLength;
             }
-            emloop_install_pack(allocateUTF8(name), data, received);
+            emloop_install_pack(stringToNewUTF8(name), data, received);
             _free(data);
             mtScheduler.setCondition(installedCond);
             if (this.onprogress) {
@@ -734,7 +733,7 @@ class MinetestLauncher {
         activateBody();
         fixGeometry();
         if (this.minetestConf) {
-            const confBuf = allocateUTF8(this.minetestConf)
+            const confBuf = stringToNewUTF8(this.minetestConf)
             emloop_set_minetest_conf(confBuf);
             _free(confBuf);
         }
@@ -742,11 +741,11 @@ class MinetestLauncher {
         // Setup emsocket
         // TODO: emsocket should export the helpers for this
         emsocket_init();
-        const proxyBuf = allocateUTF8(this.proxyUrl);
+        const proxyBuf = stringToNewUTF8(this.proxyUrl);
         emsocket_set_proxy(proxyBuf);
         _free(proxyBuf);
         if (this.vpn) {
-            const vpnBuf = allocateUTF8(this.vpn);
+            const vpnBuf = stringToNewUTF8(this.vpn);
             emsocket_set_vpn(vpnBuf);
             _free(vpnBuf);
         }

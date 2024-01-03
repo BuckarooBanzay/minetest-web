@@ -1,11 +1,11 @@
-/* globals _malloc, cwrap, HEAPU32, HEAPU8, allocateUTF8 */
+/* globals _malloc, cwrap, HEAPU32, HEAPU8, stringToNewUTF8 */
 
 function makeArgv(args) {
     // Assuming 4-byte pointers
     const argv = _malloc((args.length + 1) * 4);
     let i;
     for (i = 0; i < args.length; i++) {
-        HEAPU32[(argv >>> 2) + i] = allocateUTF8(args[i]);
+        HEAPU32[(argv >>> 2) + i] = stringToNewUTF8(args[i]);
     }
     HEAPU32[(argv >>> 2) + i] = 0; // argv[argc] == NULL
     return [i, argv];
@@ -31,7 +31,7 @@ function addPack(name) {
         const len = u8arr.byteLength;
         const offset = _malloc(len);
         HEAPU8.set(u8arr, offset);
-        emloop_install_pack(allocateUTF8(name), offset, len);
+        emloop_install_pack(stringToNewUTF8(name), offset, len);
     });
 }
 
@@ -77,7 +77,7 @@ export function execute(args) {
 
     emloop_init_sound();
     emsocket_init();
-    emsocket_set_proxy(allocateUTF8(location.protocol.replace("http", "ws") + "//" + location.host + location.pathname + "proxy"));
+    emsocket_set_proxy(stringToNewUTF8(location.protocol.replace("http", "ws") + "//" + location.host + location.pathname + "proxy"));
 
     resize();
     window.addEventListener('resize', resize);
