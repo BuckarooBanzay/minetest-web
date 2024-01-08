@@ -25,6 +25,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
 		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+		w.Header().Set("Cache-Control", "max-age=300")
 		fs.ServeHTTP(w, r)
 	})
 
