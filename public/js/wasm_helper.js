@@ -91,5 +91,7 @@ export function execute(args) {
 }
 
 window.Module = {
-    canvas: canvas_el
+    canvas: canvas_el,
+    print: s => console.log("print", s),
+    printErr: s => console.warn("printErr", s)
 };
