@@ -35,6 +35,10 @@ function addPack(name) {
     });
 }
 
+function setProgress(msg) {
+    document.getElementById("loading-msg").innerText = msg;
+}
+
 export const ready = new Promise((resolve, reject) => {
     window.emloop_ready = function() {
         emloop_pause = cwrap("emloop_pause", null, []);
@@ -47,6 +51,7 @@ export const ready = new Promise((resolve, reject) => {
         emsocket_init = cwrap("emsocket_init", null, []);
         emsocket_set_proxy = cwrap("emsocket_set_proxy", null, ["number"]);
 
+        setProgress("base pack");
         addPack("base")
         .then(() => resolve())
         .catch(() => reject("could not fetch base pack"));
@@ -54,6 +59,7 @@ export const ready = new Promise((resolve, reject) => {
 });
 
 export function init(){
+    setProgress("wasm bootstrap script");
     const script_el = document.createElement("script");
     script_el.src = "wasm/minetest.js";
     document.body.appendChild(script_el);
