@@ -1,5 +1,6 @@
 import { execute } from "../wasm_helper.js";
 import { store } from "../service/login.js";
+import { hide } from "../service/app.js";
 
 export default {
     inject: ["unmount", "info"],
@@ -16,7 +17,7 @@ export default {
     },
     methods: {
         launch: function() {
-            this.unmount();
+            hide();
             execute([
                 "--go",
                 "--address", this.address,

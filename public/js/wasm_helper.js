@@ -92,6 +92,30 @@ export function execute(args) {
 
 window.Module = {
     canvas: canvas_el,
-    print: s => console.log("print", s),
-    printErr: s => console.warn("printErr", s)
+    print: s => {
+        console.log("print", s);
+        if (s.startsWith("main() exited with return value")) {
+            console.warn("game exited");
+        }
+        if (s.startsWith("Unhandled exception:")) {
+            console.warn("unhandled exception");
+        }
+    },
+    printErr: s => {
+        console.warn("printErr", s);
+        if (s.startsWith("emsocket_getaddrinfo: emsocket_read failed")) {
+            // comes after "Unhandled exception:"
+            console.warn("socket error");
+        }
+        if (s.indexOf("Connection timed out") >= 0) {
+            // comes before "main() exited with return value 1"
+            console.warn("connection timed out");
+        }
+        if (s.indexOf("Access denied. Reason: ") >= 0) {
+            // "Timed out"
+            // "Invalid password"
+            // comes before "main() exited with return value 1"
+            console.warn("access denied");
+        }
+    }
 };
