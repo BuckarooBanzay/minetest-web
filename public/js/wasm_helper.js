@@ -52,7 +52,7 @@ export const ready = new Promise((resolve, reject) => {
         emsocket_set_proxy = cwrap("emsocket_set_proxy", null, ["number"]);
 
         setProgress("base pack");
-        addPack("base")
+        addPack("light")
         .then(() => resolve())
         .catch(() => reject("could not fetch base pack"));
     };
