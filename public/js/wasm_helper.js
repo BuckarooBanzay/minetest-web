@@ -52,7 +52,7 @@ export const ready = new Promise((resolve, reject) => {
         emsocket_set_proxy = cwrap("emsocket_set_proxy", null, ["number"]);
 
         setProgress("base pack");
-        addPack("light")
+        addPack("base")
         .then(() => resolve())
         .catch(() => reject("could not fetch base pack"));
     };
@@ -61,7 +61,7 @@ export const ready = new Promise((resolve, reject) => {
 export function init(){
     setProgress("wasm bootstrap script");
     const script_el = document.createElement("script");
-    script_el.src = "wasm/minetest.js";
+    script_el.src = "wasm/luanti.js";
     document.body.appendChild(script_el);
 
     return ready;
@@ -78,7 +78,7 @@ export function resize() {
 export function execute(args) {
     canvas_el.style.display = "block";
 
-    const [argc, argv] = makeArgv(["./minetest", ...args]);
+    const [argc, argv] = makeArgv(["./luanti", ...args]);
     emloop_invoke_main(argc, argv);
 
     emloop_init_sound();
